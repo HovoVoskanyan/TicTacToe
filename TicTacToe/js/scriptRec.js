@@ -101,7 +101,6 @@ function CheckMatrix( Arrays )
     {
         if (CheckArray(Arrays[i]))
         {
-            alert(Arrays[i][0] + " Has Won");
             if (isNaN(Arrays[i][0])) { 
                 board = getStandartMatrix();
                 return Arrays[i][0] == "X" ? 1 : 0;
@@ -139,17 +138,124 @@ var onClick = function (me)
 {
     var info = me.id.split("_");
 
-    if (board[info[1] - 1][info[2] - 1] != "O" && board[info[1] - 1][info[2] - 1] !="X") board[info[1] - 1][info[2] - 1] = "X";
+    if (board[info[1] - 1][info[2] - 1] != "O" && board[info[1] - 1][info[2] - 1] != "X") board[info[1] - 1][info[2] - 1] = "X";
 
     var winCombs = Play.getAllWinningCombinations(board);
-
-    console.log(board);
-   // console.log(winCombs);
+    var Who = CheckMatrix(winCombs);
 
     Play.draw(board);
-    setTimeout(CheckMatrix(winCombs), 10);
 
-    if (!isNaN(CheckMatrix(winCombs))) {
-        board = getStandartMatrix();
+    console.log(board);
+
+    var move = FindBestMove(board);
+    console.log(move);
+
+
+
+   // console.log(winCombs);
+
+    setTimeout(function ()
+    {
+        console.log("vardanik");
+        if (Who == -1) {
+
+            board = getStandartMatrix();
+            Play.draw(board);
+
+            alert("Draw Shake Your Hands");
+        } else if (Who == 1) {
+
+            board = getStandartMatrix();
+            Play.draw(board);
+
+            alert("X Has Won");
+        } else if (Who == 0)
+        {
+
+            board = getStandartMatrix();
+            Play.draw(board);
+
+            alert("O Has Won");
+        }
+    }, 500)
+
+
+}
+    function Minimax(matrix,step,IsTurn )
+    {
+
+        score = CheckMatrix(matrix);
+
+        if (score == 0)
+        {
+            return 0;
+        }
+        if (score == 1)
+        {
+            return -10;
+        }
+        if (score == -1)
+        {
+            return 10;
+        }
+
+        if (IsTurn) {
+            var best = -1000;
+
+            for (var i = 0; i < matrix.length; i++) {
+                for (var j = 0; j < matrix[i].length; j++) {
+                    if (!isNaN(matrix[i][j])) {
+                        var temp = matrix[i][j];
+                        matrix[i][j] = "O";
+
+                        best = Math.max(best, Minimax(matrix, step + 1, IsTurn));
+
+                    matrix[i][j] = temp;
+                    }
+                }
+            }
+        } else
+        {
+            var best = 1000;
+
+            for (var i = 0; i < matrix.length; i++) {
+                for (var j = 0; j < matrix[i].length; j++) {
+                    if (!isNaN(matrix[i][j])) {
+                        var temp = matrix[i][j];
+                        matrix[i][j] = "X";
+
+                        best = Math.min(best, Minimax(matrix, step + 1, IsTurn));
+
+                    }
+                    matrix[i][j] = temp;
+                }
+            }
+
+        }
+}
+function FindBestMove(matrix)
+{
+    var BestVal = -1000;
+    var result = [];
+
+    for (var i = 0; i < matrix.length; i++)
+    {
+        for (var j = 0; j < matrix.length; j++)
+        {
+            if (!isNaN(matrix[i][j]))
+            {
+                var temp = matrix[i][j];
+                matrix[i][j] = "O";
+                var MoveVal = Math.max(BestVal, Minimax(matrix, 0, false));
+
+                if (MoveVal > BestVal)
+                {
+                    result[0] = i;
+                    result[1] = j;
+                }
+
+            }
+        }
     }
+    return result;
 }
